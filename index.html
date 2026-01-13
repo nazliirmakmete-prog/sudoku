@@ -265,12 +265,12 @@
     }
 
     .sudoku-wrapper {
+      flex: 1 1 auto;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 12px;
       border-radius: 16px;
-      flex: 1 1 auto;
       border: 1px solid;
       transition: background 0.3s ease, border-color 0.3s ease;
     }
@@ -285,10 +285,14 @@
       border-color: #d1d5db;
     }
 
+    /* GRID ARTIK TAMAMEN RESPONSIVE:
+       Genişliği ekrana göre ayarla, kare oranı koru */
     .sudoku-grid {
       display: grid;
-      grid-template-columns: repeat(9, 48px);
-      grid-template-rows: repeat(9, 48px);
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      width: min(100%, 480px);
+      aspect-ratio: 1 / 1;
       border-radius: 12px;
       overflow: hidden;
       border: 2px solid;
@@ -306,8 +310,6 @@
     }
 
     .cell {
-      width: 48px;
-      height: 48px;
       border: 1px solid;
       display: flex;
       align-items: center;
@@ -548,23 +550,10 @@
         align-items: center;
       }
 
-      .sudoku-grid {
-        grid-template-columns: repeat(9, 42px);
-        grid-template-rows: repeat(9, 42px);
-      }
-
-      .cell {
-        width: 42px;
-        height: 42px;
-      }
-
-      .cell input {
-        font-size: 18px;
-      }
-
       .sidebar {
         width: 100%;
         flex-direction: column;
+        align-items: center;
       }
 
       .controls {
@@ -576,26 +565,21 @@
 
     /* Küçük telefonlar */
     @media (max-width: 480px) {
-      .sudoku-grid {
-        grid-template-columns: repeat(9, 40px);
-        grid-template-rows: repeat(9, 40px);
-      }
-
-      .cell {
-        width: 40px;
-        height: 40px;
-      }
-
-      .cell input {
-        font-size: 18px;
-      }
-
       .title-block h1 {
         font-size: 20px;
       }
 
       .subtitle {
         font-size: 14px;
+      }
+
+      .meta-chip {
+        font-size: 11px;
+      }
+
+      button {
+        font-size: 12px;
+        padding: 7px 11px;
       }
     }
   </style>
@@ -609,7 +593,7 @@
 
     <div class="header">
       <div class="title-block">
-        <h1>Sudoku </h1>
+        <h1>Sudoku</h1>
         <p class="subtitle">
           Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda, 1’den 9’a kadar olan rakamların
           tekrar etmeyecek şekilde yerleştirilmesidir.<br><br>
@@ -741,7 +725,7 @@
     const playPromise = musicEl.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Tarayıcı otomatik çalmayı engellerse, kullanıcı sayfayla etkileşime girince çalacaktır.
+        // Tarayıcı otomatik çalmayı engellerse, kullanıcı etkileşimi sonrası başlar
       });
     }
   }
