@@ -88,17 +88,18 @@
     }
 
     .subtitle {
-      font-size: 16px;       /* Yönerge daha büyük */
+      font-size: 16px;
+      font-weight: 700;      /* Yönergenin tamamı bold */
       margin: 0;
       line-height: 1.6;
     }
 
     body.dark-mode .subtitle {
-      color: #9ca3af;
+      color: #e5e7eb;
     }
 
     body.light-mode .subtitle {
-      color: #4b5563;
+      color: #111827;
     }
 
     .right-header {
@@ -152,7 +153,7 @@
       font-weight: 600;
     }
 
-    /* Tema ve müzik butonları */
+    /* Tema butonu */
     .round-icon-btn {
       border: none;
       border-radius: 999px;
@@ -191,7 +192,7 @@
 
     .difficulty-bar {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
@@ -315,6 +316,7 @@
       transition: background 0.12s ease, box-shadow 0.12s ease, border-color 0.2s ease;
     }
 
+    /* Tüm çizgiler belirgin */
     body.dark-mode .cell {
       border-color: #64748b;
     }
@@ -323,6 +325,7 @@
       border-color: #9ca3af;
     }
 
+    /* 3x3 karelerin kalın sınırları */
     .border-top-bold { border-top-width: 3px !important; }
     .border-bottom-bold { border-bottom-width: 3px !important; }
     .border-left-bold { border-left-width: 3px !important; }
@@ -347,25 +350,25 @@
       color: #111827;
     }
 
+    /* Hazır gelen sayılar */
     .prefilled {}
-
     body.dark-mode .prefilled {
       background: #020617;
     }
-
     body.light-mode .prefilled {
       background: #e9edf7;
     }
-
     .prefilled input {
       cursor: default;
       text-shadow: none;
     }
 
+    /* Öğrenci girişi hücreler */
     .editable input {
       cursor: text;
     }
 
+    /* Kullanıcının girdiği rakamlar: farklı renk + neon glow */
     .editable input.user-input {
       color: #facc15;
       text-shadow:
@@ -400,6 +403,7 @@
       background: rgba(224, 231, 255, 0.7);
     }
 
+    /* Hata / doğru / boş durumları */
     .cell.error input {
       background: rgba(239, 68, 68, 0.35);
       box-shadow: 0 0 10px rgba(239, 68, 68, 0.65);
@@ -524,6 +528,7 @@
       color: #b91c1c;
     }
 
+    /* Tablet ve küçük ekranlar */
     @media (max-width: 820px) {
       .container {
         padding: 18px 14px 16px;
@@ -540,17 +545,17 @@
 
       .board-wrapper {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
       }
 
       .sudoku-grid {
-        grid-template-columns: repeat(9, 38px);
-        grid-template-rows: repeat(9, 38px);
+        grid-template-columns: repeat(9, 42px);
+        grid-template-rows: repeat(9, 42px);
       }
 
       .cell {
-        width: 38px;
-        height: 38px;
+        width: 42px;
+        height: 42px;
       }
 
       .cell input {
@@ -565,22 +570,24 @@
       .controls {
         flex-direction: row;
         flex-wrap: wrap;
+        justify-content: center;
       }
     }
 
+    /* Küçük telefonlar */
     @media (max-width: 480px) {
       .sudoku-grid {
-        grid-template-columns: repeat(9, 32px);
-        grid-template-rows: repeat(9, 32px);
+        grid-template-columns: repeat(9, 40px);
+        grid-template-rows: repeat(9, 40px);
       }
 
       .cell {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
       }
 
       .cell input {
-        font-size: 16px;
+        font-size: 18px;
       }
 
       .title-block h1 {
@@ -603,22 +610,20 @@
     <div class="header">
       <div class="title-block">
         <h1>Sudoku </h1>
-        <p class="subtitle" style="font-weight: 700;">
-            Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda, 1’den 9’a kadar olan rakamların
-            <strong>tekrar etmeyecek</strong> şekilde yerleştirilmesidir.<br><br>
-            Rakamları yerleştirirken:<br>
-            • Her satır ve sütunda,<br>
-            • Kalın ve belirgin çizgilerle ayrılmış her 3×3 kare kutunun içinde<br>
-            rakamlar birer defa kullanılmalıdır.<br><br>
-            Verilen kurallara göre tabloyu doldurunuz.
-          </p>          
+        <p class="subtitle">
+          Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda, 1’den 9’a kadar olan rakamların
+          tekrar etmeyecek şekilde yerleştirilmesidir.<br><br>
+          Rakamları yerleştirirken:<br>
+          • Her satır ve sütunda,<br>
+          • Kalın ve belirgin çizgilerle ayrılmış her 3×3 kare kutunun içinde<br>
+          rakamlar birer defa kullanılmalıdır.<br><br>
+          Verilen kurallara göre tabloyu doldurunuz.
         </p>
       </div>
       <div class="right-header">
         <div class="top-controls">
           <button id="theme-toggle" class="round-icon-btn" onclick="toggleTheme()" title="Tema değiştir">
             🌙
-          </button>
           </button>
         </div>
         <div class="meta-panel">
@@ -646,7 +651,6 @@
           <span class="dot"></span>Zor
         </button>
       </div>
-      <!-- "Zorluğu değiştirince..." yazısı silindi -->
     </div>
 
     <div class="board-wrapper">
@@ -700,7 +704,6 @@
   const timerEl = document.getElementById("timer");
   const difficultyLabelEl = document.getElementById("difficulty-label");
   const themeToggleBtn = document.getElementById("theme-toggle");
-  const musicToggleBtn = document.getElementById("music-toggle");
   const musicEl = document.getElementById("bg-music");
 
   function deepCopyGrid(grid) {
@@ -731,28 +734,15 @@
     }
   }
 
-  // Müzik kontrolü
+  // Müzik başlat (tarayıcı izin verirse)
   function initMusic() {
     if (!musicEl) return;
-    musicEl.volume = 0.3; // daha duyulur ama hâlâ sakin
+    musicEl.volume = 0.3; // sakin ama duyulur
     const playPromise = musicEl.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Tarayıcı otomatik çalmaya izin vermezse, öğrenci 🔊 butonuna basınca çalışır.
+        // Tarayıcı otomatik çalmayı engellerse, kullanıcı sayfayla etkileşime girince çalacaktır.
       });
-    }
-  }
-
-  function toggleMusic() {
-    if (!musicEl) return;
-    if (musicEl.paused) {
-      musicEl.play();
-      musicToggleBtn.textContent = "🔊";
-      musicToggleBtn.title = "Müziği kapat";
-    } else {
-      musicEl.pause();
-      musicToggleBtn.textContent = "🔈";
-      musicToggleBtn.title = "Müziği aç";
     }
   }
 
@@ -844,6 +834,7 @@
         const cellDiv = document.createElement("div");
         cellDiv.classList.add("cell");
 
+        // 3x3 kalın sınırlar
         if (r === 0) cellDiv.classList.add("border-top-bold");
         if (r === 8) cellDiv.classList.add("border-bottom-bold");
         if (c === 0) cellDiv.classList.add("border-left-bold");
@@ -1000,7 +991,7 @@
   // İlk yüklemede başlat
   window.addEventListener("DOMContentLoaded", () => {
     setDifficulty("orta");
-    initMusic();  // Tarayıcı izin verirse müzik çok düşük sesle başlar
+    initMusic();  // Tarayıcı izin verirse sakin müzik başlar
   });
 </script>
 </body>
