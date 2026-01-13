@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>İnteraktif Sudoku</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode {
+      color-scheme: dark;
+      background: radial-gradient(circle at top, #4c1d95 0, #020617 45%, #000000 100%);
+      color: #e5e7eb;
+    }
+
+    body.light-mode {
+      color-scheme: light;
+      background: radial-gradient(circle at top, #eff6ff 0, #e5e7eb 45%, #d1d5db 100%);
+      color: #111827;
+    }
+
+    .app-shell {
+      max-width: 860px;
+      width: 100%;
+    }
+
+    .container {
+      border-radius: 20px;
+      padding: 24px 24px 18px;
+      backdrop-filter: blur(10px);
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.4),
+        0 0 0 1px rgba(148, 163, 184, 0.25);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    body.dark-mode .container {
+      background: radial-gradient(circle at top left, #020617 0, #020617 45%, #020617 100%);
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.8),
+        0 0 0 1px rgba(148, 163, 184, 0.25);
+    }
+
+    body.light-mode .container {
+      background: #f9fafb;
+      box-shadow:
+        0 18px 40px rgba(148, 163, 184, 0.5),
+        0 0 0 1px rgba(148, 163, 184, 0.4);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .title-block h1 {
+      font-size: 22px;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body.dark-mode .title-block h1 {
+      color: #f9fafb;
+    }
+
+    body.light-mode .title-block h1 {
+      color: #111827;
+    }
+
+    .subtitle {
+      font-size: 16px;       /* Yönerge daha büyük */
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    body.dark-mode .subtitle {
+      color: #9ca3af;
+    }
+
+    body.light-mode .subtitle {
+      color: #4b5563;
+    }
+
+    .right-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .meta-panel {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .meta-chip {
+      font-size: 12px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid;
+    }
+
+    body.dark-mode .meta-chip {
+      background: rgba(31, 41, 55, 0.9);
+      color: #e5e7eb;
+      border-color: rgba(55, 65, 81, 0.9);
+    }
+
+    body.light-mode .meta-chip {
+      background: #e5e7eb;
+      color: #111827;
+      border-color: #d1d5db;
+    }
+
+    .meta-chip span.icon {
+      font-size: 14px;
+    }
+
+    .timer-display {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    /* Tema ve müzik butonları */
+    .round-icon-btn {
+      border: none;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+    }
+
+    body.dark-mode .round-icon-btn {
+      background: rgba(31, 41, 55, 0.9);
+      color: #e5e7eb;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    body.light-mode .round-icon-btn {
+      background: #f9fafb;
+      color: #111827;
+      box-shadow: 0 0 8px rgba(148, 163, 184, 0.7);
+      border: 1px solid #e5e7eb;
+    }
+
+    .round-icon-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .round-icon-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .difficulty-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      margin-top: 4px;
+    }
+
+    .difficulty-buttons {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      gap: 4px;
+      border: 1px solid;
+    }
+
+    body.dark-mode .difficulty-buttons {
+      background: rgba(31, 41, 55, 0.85);
+      border-color: rgba(55, 65, 81, 0.9);
+    }
+
+    body.light-mode .difficulty-buttons {
+      background: #e5e7eb;
+      border-color: #d1d5db;
+    }
+
+    .difficulty-btn {
+      border: none;
+      padding: 7px 12px;
+      font-size: 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      background: transparent;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    body.dark-mode .difficulty-btn {
+      color: #9ca3af;
+    }
+
+    body.light-mode .difficulty-btn {
+      color: #4b5563;
+    }
+
+    .difficulty-btn span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #6b7280;
+    }
+
+    .difficulty-btn.active {
+      background: radial-gradient(circle at top, #4c1d95, #1d4ed8);
+      color: #f9fafb !important;
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.7);
+    }
+
+    .difficulty-btn.active span.dot {
+      background: #facc15;
+    }
+
+    .board-wrapper {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .sudoku-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      border-radius: 16px;
+      flex: 1 1 auto;
+      border: 1px solid;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark-mode .sudoku-wrapper {
+      background: radial-gradient(circle at top left, #020617, #030712 45%, #020617 100%);
+      border-color: rgba(55, 65, 81, 0.9);
+    }
+
+    body.light-mode .sudoku-wrapper {
+      background: radial-gradient(circle at top left, #eef2ff, #f3f4f6 45%, #e5e7eb 100%);
+      border-color: #d1d5db;
+    }
+
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 48px);
+      grid-template-rows: repeat(9, 48px);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark-mode .sudoku-grid {
+      background: #020617;
+      border-color: #e5e7eb;
+    }
+
+    body.light-mode .sudoku-grid {
+      background: #f3f4f6;
+      border-color: #111827;
+    }
+
+    .cell {
+      width: 48px;
+      height: 48px;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background 0.12s ease, box-shadow 0.12s ease, border-color 0.2s ease;
+    }
+
+    body.dark-mode .cell {
+      border-color: #64748b;
+    }
+
+    body.light-mode .cell {
+      border-color: #9ca3af;
+    }
+
+    .border-top-bold { border-top-width: 3px !important; }
+    .border-bottom-bold { border-bottom-width: 3px !important; }
+    .border-left-bold { border-left-width: 3px !important; }
+    .border-right-bold { border-right-width: 3px !important; }
+
+    .cell input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      outline: none;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      background: transparent;
+    }
+
+    body.dark-mode .cell input {
+      color: #e5e7eb;
+    }
+
+    body.light-mode .cell input {
+      color: #111827;
+    }
+
+    .prefilled {}
+
+    body.dark-mode .prefilled {
+      background: #020617;
+    }
+
+    body.light-mode .prefilled {
+      background: #e9edf7;
+    }
+
+    .prefilled input {
+      cursor: default;
+      text-shadow: none;
+    }
+
+    .editable input {
+      cursor: text;
+    }
+
+    .editable input.user-input {
+      color: #facc15;
+      text-shadow:
+        0 0 4px rgba(250, 204, 21, 0.7),
+        0 0 8px rgba(250, 204, 21, 0.6),
+        0 0 14px rgba(245, 158, 11, 0.7);
+      font-weight: 700;
+    }
+
+    body.light-mode .editable input.user-input {
+      color: #d97706;
+      text-shadow:
+        0 0 4px rgba(249, 115, 22, 0.6),
+        0 0 8px rgba(234, 179, 8, 0.6);
+    }
+
+    .editable input:focus {
+      border-radius: 4px;
+    }
+
+    body.dark-mode .editable input:focus {
+      box-shadow:
+        0 0 0 2px rgba(129, 140, 248, 0.9),
+        0 0 12px rgba(59, 130, 246, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    body.light-mode .editable input:focus {
+      box-shadow:
+        0 0 0 2px rgba(79, 70, 229, 0.8),
+        0 0 10px rgba(129, 140, 248, 0.6);
+      background: rgba(224, 231, 255, 0.7);
+    }
+
+    .cell.error input {
+      background: rgba(239, 68, 68, 0.35);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.65);
+    }
+
+    .cell.correct input {
+      background: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+    }
+
+    .cell.empty input {
+      background: rgba(250, 204, 21, 0.2);
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.55);
+    }
+
+    .sidebar {
+      width: 210px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      font-variant-numeric: tabular-nums;
+    }
+
+    button.primary {
+      background: radial-gradient(circle at top, #4f46e5, #6366f1);
+      color: #f9fafb;
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.7);
+    }
+
+    body.light-mode button.primary {
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.5);
+    }
+
+    button.secondary {
+      background: rgba(31, 41, 55, 0.85);
+      color: #e5e7eb;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+
+    body.light-mode button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      border-color: #d1d5db;
+    }
+
+    button.accent {
+      background: radial-gradient(circle at top, #f97316, #facc15);
+      color: #111827;
+      box-shadow: 0 0 16px rgba(249, 115, 22, 0.75);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.9);
+    }
+
+    body.light-mode button:hover {
+      box-shadow: 0 8px 16px rgba(148, 163, 184, 0.8);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    #message {
+      font-size: 13px;
+      min-height: 20px;
+      margin-top: 4px;
+    }
+
+    #message.ok {
+      font-weight: 600;
+    }
+
+    body.dark-mode #message.ok {
+      color: #22c55e;
+      text-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+    }
+
+    body.light-mode #message.ok {
+      color: #15803d;
+    }
+
+    #message.warn {
+      color: #facc15;
+      font-weight: 500;
+    }
+
+    body.light-mode #message.warn {
+      color: #b45309;
+    }
+
+    #message.error {
+      color: #f97316;
+      font-weight: 600;
+    }
+
+    body.light-mode #message.error {
+      color: #b91c1c;
+    }
+
+    @media (max-width: 820px) {
+      .container {
+        padding: 18px 14px 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .right-header {
+        align-items: flex-start;
+      }
+
+      .board-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .sudoku-grid {
+        grid-template-columns: repeat(9, 38px);
+        grid-template-rows: repeat(9, 38px);
+      }
+
+      .cell {
+        width: 38px;
+        height: 38px;
+      }
+
+      .cell input {
+        font-size: 18px;
+      }
+
+      .sidebar {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sudoku-grid {
+        grid-template-columns: repeat(9, 32px);
+        grid-template-rows: repeat(9, 32px);
+      }
+
+      .cell {
+        width: 32px;
+        height: 32px;
+      }
+
+      .cell input {
+        font-size: 16px;
+      }
+
+      .title-block h1 {
+        font-size: 20px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+<div class="app-shell">
+  <div class="container">
+
+    <!-- Arka plan müziği (kendi mp3 dosya adını buraya koy) -->
+    <audio id="bg-music" src="background-music.mp3" loop></audio>
+
+    <div class="header">
+      <div class="title-block">
+        <h1>Sudoku </h1>
+        <p class="subtitle" style="font-weight: 700;">
+            Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda, 1’den 9’a kadar olan rakamların
+            <strong>tekrar etmeyecek</strong> şekilde yerleştirilmesidir.<br><br>
+            Rakamları yerleştirirken:<br>
+            • Her satır ve sütunda,<br>
+            • Kalın ve belirgin çizgilerle ayrılmış her 3×3 kare kutunun içinde<br>
+            rakamlar birer defa kullanılmalıdır.<br><br>
+            Verilen kurallara göre tabloyu doldurunuz.
+          </p>          
+        </p>
+      </div>
+      <div class="right-header">
+        <div class="top-controls">
+          <button id="theme-toggle" class="round-icon-btn" onclick="toggleTheme()" title="Tema değiştir">
+            🌙
+          </button>
+          </button>
+        </div>
+        <div class="meta-panel">
+          <div class="meta-chip">
+            <span class="icon">⏱️</span>
+            <span class="timer-display" id="timer">00:00</span>
+          </div>
+          <div class="meta-chip">
+            <span class="icon">🎯</span>
+            <span id="difficulty-label">Zorluk: Orta</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="difficulty-bar">
+      <div class="difficulty-buttons">
+        <button class="difficulty-btn" id="btn-kolay" onclick="setDifficulty('kolay')">
+          <span class="dot"></span>Kolay
+        </button>
+        <button class="difficulty-btn active" id="btn-orta" onclick="setDifficulty('orta')">
+          <span class="dot"></span>Orta
+        </button>
+        <button class="difficulty-btn" id="btn-zor" onclick="setDifficulty('zor')">
+          <span class="dot"></span>Zor
+        </button>
+      </div>
+      <!-- "Zorluğu değiştirince..." yazısı silindi -->
+    </div>
+
+    <div class="board-wrapper">
+      <div class="sudoku-wrapper">
+        <div id="sudoku" class="sudoku-grid"></div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="controls">
+          <button class="primary" onclick="checkSudoku()">
+            ✔ Cevapları Kontrol Et
+          </button>
+          <button class="secondary" onclick="clearBoard()">
+            🧹 Sadece Boşlukları Temizle
+          </button>
+          <button class="accent" onclick="newGame()">
+            🎲 Yeni Sudoku Üret
+          </button>
+          <button class="secondary" onclick="showSolution()">
+            🔍 Çözümü Göster
+          </button>
+        </div>
+        <div id="message"></div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+  const baseSolution = [
+    [4, 3, 5, 2, 6, 9, 7, 8, 1],
+    [6, 8, 2, 5, 7, 1, 4, 9, 3],
+    [1, 9, 7, 8, 3, 4, 5, 6, 2],
+    [8, 2, 6, 1, 9, 5, 3, 4, 7],
+    [3, 7, 4, 6, 8, 2, 9, 1, 5],
+    [9, 5, 1, 7, 4, 3, 6, 2, 8],
+    [5, 1, 9, 3, 2, 6, 8, 7, 4],
+    [2, 4, 8, 9, 5, 7, 1, 3, 6],
+    [7, 6, 3, 4, 1, 8, 2, 5, 9]
+  ];
+
+  let currentPuzzle = null;
+  let currentSolution = null;
+  let currentDifficulty = "orta";
+
+  let secondsElapsed = 0;
+  let timerInterval = null;
+
+  const sudokuContainer = document.getElementById("sudoku");
+  const messageEl = document.getElementById("message");
+  const timerEl = document.getElementById("timer");
+  const difficultyLabelEl = document.getElementById("difficulty-label");
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  const musicToggleBtn = document.getElementById("music-toggle");
+  const musicEl = document.getElementById("bg-music");
+
+  function deepCopyGrid(grid) {
+    return grid.map(row => row.slice());
+  }
+
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  // Tema değişimi
+  function toggleTheme() {
+    const body = document.body;
+    const isDark = body.classList.contains("dark-mode");
+    if (isDark) {
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+      themeToggleBtn.textContent = "☀️";
+      themeToggleBtn.title = "Dark mode'a geç";
+    } else {
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+      themeToggleBtn.textContent = "🌙";
+      themeToggleBtn.title = "Light mode'a geç";
+    }
+  }
+
+  // Müzik kontrolü
+  function initMusic() {
+    if (!musicEl) return;
+    musicEl.volume = 0.3; // daha duyulur ama hâlâ sakin
+    const playPromise = musicEl.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Tarayıcı otomatik çalmaya izin vermezse, öğrenci 🔊 butonuna basınca çalışır.
+      });
+    }
+  }
+
+  function toggleMusic() {
+    if (!musicEl) return;
+    if (musicEl.paused) {
+      musicEl.play();
+      musicToggleBtn.textContent = "🔊";
+      musicToggleBtn.title = "Müziği kapat";
+    } else {
+      musicEl.pause();
+      musicToggleBtn.textContent = "🔈";
+      musicToggleBtn.title = "Müziği aç";
+    }
+  }
+
+  // Çözümü rastgele dönüştür
+  function randomizeSolution(base) {
+    let grid = deepCopyGrid(base);
+
+    const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    shuffleArray(digits);
+    const map = {};
+    for (let i = 0; i < 9; i++) {
+      map[i + 1] = digits[i];
+    }
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        grid[r][c] = map[grid[r][c]];
+      }
+    }
+
+    const newGrid = [];
+    for (let band = 0; band < 3; band++) {
+      const rows = [0, 1, 2];
+      shuffleArray(rows);
+      rows.forEach(offset => {
+        newGrid.push(grid[band * 3 + offset]);
+      });
+    }
+    return newGrid;
+  }
+
+  // Zorluğa göre rastgele Sudoku üret
+  function generateSudoku(difficulty) {
+    const solution = randomizeSolution(baseSolution);
+    const puzzle = deepCopyGrid(solution);
+
+    let removalCount;
+    if (difficulty === "kolay") {
+      removalCount = 35;
+    } else if (difficulty === "orta") {
+      removalCount = 45;
+    } else {
+      removalCount = 55;
+    }
+
+    let removed = 0;
+    while (removed < removalCount) {
+      const r = Math.floor(Math.random() * 9);
+      const c = Math.floor(Math.random() * 9);
+      if (puzzle[r][c] !== 0) {
+        puzzle[r][c] = 0;
+        removed++;
+      }
+    }
+    return { puzzle, solution };
+  }
+
+  // Zamanlayıcı
+  function updateTimerDisplay() {
+    const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, "0");
+    const secs = String(secondsElapsed % 60).padStart(2, "0");
+    timerEl.textContent = `${mins}:${secs}`;
+  }
+
+  function startTimer() {
+    stopTimer();
+    secondsElapsed = 0;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      secondsElapsed++;
+      updateTimerDisplay();
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  // Tahtayı oluştur
+  function createBoard() {
+    sudokuContainer.innerHTML = "";
+
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const cellValue = currentPuzzle[r][c];
+
+        const cellDiv = document.createElement("div");
+        cellDiv.classList.add("cell");
+
+        if (r === 0) cellDiv.classList.add("border-top-bold");
+        if (r === 8) cellDiv.classList.add("border-bottom-bold");
+        if (c === 0) cellDiv.classList.add("border-left-bold");
+        if (c === 8) cellDiv.classList.add("border-right-bold");
+        if (r === 2 || r === 5) cellDiv.classList.add("border-bottom-bold");
+        if (c === 2 || c === 5) cellDiv.classList.add("border-right-bold");
+
+        const input = document.createElement("input");
+        input.setAttribute("maxlength", "1");
+        input.setAttribute("inputmode", "numeric");
+        input.id = `cell-${r}-${c}`;
+
+        if (cellValue !== 0) {
+          input.value = cellValue;
+          input.readOnly = true;
+          cellDiv.classList.add("prefilled");
+        } else {
+          cellDiv.classList.add("editable");
+          input.addEventListener("input", (e) => {
+            const v = e.target.value.replace(/\D/g, "");
+            if (v === "") {
+              e.target.value = "";
+              input.classList.remove("user-input");
+              return;
+            }
+            const n = parseInt(v, 10);
+            if (n < 1 || n > 9) {
+              e.target.value = "";
+              input.classList.remove("user-input");
+            } else {
+              e.target.value = String(n);
+              input.classList.add("user-input");
+            }
+          });
+        }
+
+        cellDiv.appendChild(input);
+        sudokuContainer.appendChild(cellDiv);
+      }
+    }
+  }
+
+  function clearStatusClasses() {
+    const cells = document.querySelectorAll(".cell");
+    cells.forEach((cell) => {
+      cell.classList.remove("error", "correct", "empty");
+    });
+  }
+
+  // Kontroller
+  function checkSudoku() {
+    clearStatusClasses();
+    let hasError = false;
+    let hasEmpty = false;
+
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const input = document.getElementById(`cell-${r}-${c}`);
+        const cellDiv = input.parentElement;
+        const userVal = input.value.trim();
+
+        if (currentPuzzle[r][c] !== 0) continue;
+
+        if (userVal === "") {
+          cellDiv.classList.add("empty");
+          hasEmpty = true;
+        } else if (parseInt(userVal, 10) !== currentSolution[r][c]) {
+          cellDiv.classList.add("error");
+          hasError = true;
+        } else {
+          cellDiv.classList.add("correct");
+        }
+      }
+    }
+
+    messageEl.className = "";
+    if (!hasError && !hasEmpty) {
+      stopTimer();
+      const finalTime = timerEl.textContent;
+      messageEl.textContent =
+        `Tebrikler! Sudoku’yu eksiksiz ve doğru çözdün. Süren: ${finalTime} 🎉`;
+      messageEl.classList.add("ok");
+    } else if (hasError) {
+      messageEl.textContent = "Bazı hücrelerde hata var. Kırmızı alanları kontrol et.";
+      messageEl.classList.add("error");
+    } else if (hasEmpty) {
+      messageEl.textContent = "Henüz boş bıraktığın hücreler var. Sarı alanları doldur.";
+      messageEl.classList.add("warn");
+    }
+  }
+
+  function clearBoard() {
+    clearStatusClasses();
+    messageEl.textContent = "";
+    messageEl.className = "";
+
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (currentPuzzle[r][c] === 0) {
+          const input = document.getElementById(`cell-${r}-${c}`);
+          input.value = "";
+          input.classList.remove("user-input");
+        }
+      }
+    }
+  }
+
+  function showSolution() {
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const input = document.getElementById(`cell-${r}-${c}`);
+        input.value = currentSolution[r][c];
+        input.classList.remove("user-input");
+      }
+    }
+    clearStatusClasses();
+    stopTimer();
+    messageEl.textContent =
+      "Çözüm gösterildi. İstersen yeni bir Sudoku üretip tekrar deneyebilirsin.";
+    messageEl.className = "warn";
+  }
+
+  // Zorluk / Yeni oyun
+  function updateDifficultyLabel() {
+    let trLabel;
+    if (currentDifficulty === "kolay") trLabel = "Kolay";
+    else if (currentDifficulty === "orta") trLabel = "Orta";
+    else trLabel = "Zor";
+    difficultyLabelEl.textContent = `Zorluk: ${trLabel}`;
+  }
+
+  function setDifficulty(level) {
+    currentDifficulty = level;
+    updateDifficultyLabel();
+
+    document.getElementById("btn-kolay").classList.toggle("active", level === "kolay");
+    document.getElementById("btn-orta").classList.toggle("active", level === "orta");
+    document.getElementById("btn-zor").classList.toggle("active", level === "zor");
+
+    newGame();
+  }
+
+  function newGame() {
+    const { puzzle, solution } = generateSudoku(currentDifficulty);
+    currentPuzzle = puzzle;
+    currentSolution = solution;
+    clearStatusClasses();
+    messageEl.textContent = "";
+    messageEl.className = "";
+    createBoard();
+    startTimer();
+  }
+
+  // İlk yüklemede başlat
+  window.addEventListener("DOMContentLoaded", () => {
+    setDifficulty("orta");
+    initMusic();  // Tarayıcı izin verirse müzik çok düşük sesle başlar
+  });
+</script>
+</body>
+</html>
