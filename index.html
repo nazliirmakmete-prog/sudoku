@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>İnteraktif Sudoku</title>
   <style>
     :root {
@@ -12,13 +13,15 @@
       box-sizing: border-box;
     }
 
+    /* MOBİL ÖNCELİKLİ GENEL STİLLER */
+
     body {
       margin: 0;
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      padding: 16px;
+      padding: 12px;
       transition: background 0.3s ease, color 0.3s ease;
     }
 
@@ -35,44 +38,37 @@
     }
 
     .app-shell {
-      max-width: 860px;
       width: 100%;
     }
 
     .container {
-      border-radius: 20px;
-      padding: 24px 24px 18px;
+      width: 100%;
+      border-radius: 16px;
+      padding: 16px 12px 14px;
       backdrop-filter: blur(10px);
       box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.4),
-        0 0 0 1px rgba(148, 163, 184, 0.25);
+        0 12px 28px rgba(15, 23, 42, 0.4),
+        0 0 0 1px rgba(148, 163, 184, 0.3);
       transition: background 0.3s ease, box-shadow 0.3s ease;
     }
 
     body.dark-mode .container {
       background: radial-gradient(circle at top left, #020617 0, #020617 45%, #020617 100%);
-      box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.8),
-        0 0 0 1px rgba(148, 163, 184, 0.25);
     }
 
     body.light-mode .container {
       background: #f9fafb;
-      box-shadow:
-        0 18px 40px rgba(148, 163, 184, 0.5),
-        0 0 0 1px rgba(148, 163, 184, 0.4);
     }
 
     .header {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 16px;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .title-block h1 {
-      font-size: 22px;
+      font-size: 20px;
       margin: 0 0 6px;
       display: flex;
       align-items: center;
@@ -88,7 +84,7 @@
     }
 
     .subtitle {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;      /* Yönergenin tamamı bold */
       margin: 0;
       line-height: 1.6;
@@ -104,8 +100,9 @@
 
     .right-header {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
       gap: 8px;
     }
 
@@ -116,19 +113,19 @@
 
     .meta-panel {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       align-items: center;
       justify-content: flex-end;
     }
 
     .meta-chip {
-      font-size: 12px;
-      padding: 5px 11px;
+      font-size: 11px;
+      padding: 4px 9px;
       border-radius: 999px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       border: 1px solid;
     }
 
@@ -145,7 +142,7 @@
     }
 
     .meta-chip span.icon {
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .timer-display {
@@ -157,8 +154,8 @@
     .round-icon-btn {
       border: none;
       border-radius: 999px;
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -192,11 +189,11 @@
 
     .difficulty-bar {
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 12px;
       margin-top: 4px;
     }
 
@@ -220,8 +217,8 @@
 
     .difficulty-btn {
       border: none;
-      padding: 7px 12px;
-      font-size: 13px;
+      padding: 6px 10px;
+      font-size: 12px;
       border-radius: 999px;
       cursor: pointer;
       background: transparent;
@@ -258,18 +255,21 @@
       background: #facc15;
     }
 
+    /* MOBİL: TAHTA ALTA, BUTONLAR ÜSTE/ALTA TEK KOLON */
+
     .board-wrapper {
       display: flex;
-      gap: 18px;
-      align-items: flex-start;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
     }
 
     .sudoku-wrapper {
-      flex: 1 1 auto;
+      width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 12px;
+      padding: 8px;
       border-radius: 16px;
       border: 1px solid;
       transition: background 0.3s ease, border-color 0.3s ease;
@@ -285,13 +285,13 @@
       border-color: #d1d5db;
     }
 
-    /* GRID ARTIK TAMAMEN RESPONSIVE:
-       Genişliği ekrana göre ayarla, kare oranı koru */
+    /* GRID: MOBİLDE EKRANI DOLDURUR */
     .sudoku-grid {
       display: grid;
       grid-template-columns: repeat(9, 1fr);
       grid-template-rows: repeat(9, 1fr);
-      width: min(100%, 480px);
+      width: 100%;
+      max-width: 420px;         /* Telefon için ideal max */
       aspect-ratio: 1 / 1;
       border-radius: 12px;
       overflow: hidden;
@@ -315,10 +315,9 @@
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: background 0.12s ease, box-shadow 0.12s ease, border-color 0.2s ease;
+      transition: background 0.12s ease, box-shadow 0.12s.ease, border-color 0.2s ease;
     }
 
-    /* Tüm çizgiler belirgin */
     body.dark-mode .cell {
       border-color: #64748b;
     }
@@ -339,7 +338,7 @@
       border: none;
       outline: none;
       text-align: center;
-      font-size: 20px;
+      font-size: 18px;  /* Mobilde büyükçe */
       font-weight: 600;
       background: transparent;
     }
@@ -422,23 +421,26 @@
     }
 
     .sidebar {
-      width: 210px;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      align-items: center;
     }
 
     .controls {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       gap: 8px;
+      justify-content: center;
     }
 
     button {
       border: none;
-      padding: 8px 13px;
+      padding: 7px 11px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       font-weight: 600;
       letter-spacing: 0.03em;
@@ -494,9 +496,10 @@
     }
 
     #message {
-      font-size: 13px;
+      font-size: 12px;
       min-height: 20px;
       margin-top: 4px;
+      text-align: center;
     }
 
     #message.ok {
@@ -530,56 +533,52 @@
       color: #b91c1c;
     }
 
-    /* Tablet ve küçük ekranlar */
-    @media (max-width: 820px) {
+    /* TABLET / DESKTOP İÇİN ÜST STİLLER (MİN-WİDTH 768px) */
+    @media (min-width: 768px) {
+      body {
+        padding: 24px;
+        align-items: center;
+      }
+
+      .app-shell {
+        max-width: 860px;
+      }
+
       .container {
-        padding: 18px 14px 16px;
+        padding: 24px 24px 18px;
       }
 
       .header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .right-header {
+        flex-direction: row;
+        justify-content: space-between;
         align-items: flex-start;
       }
 
+      .subtitle {
+        font-size: 16px;
+      }
+
       .board-wrapper {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .sidebar {
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .controls {
         flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+        align-items: flex-start;
+        gap: 18px;
       }
-    }
 
-    /* Küçük telefonlar */
-    @media (max-width: 480px) {
-      .title-block h1 {
+      .sudoku-grid {
+        max-width: 480px;
+      }
+
+      .cell input {
         font-size: 20px;
       }
 
-      .subtitle {
-        font-size: 14px;
+      .sidebar {
+        width: 220px;
+        align-items: flex-start;
       }
 
-      .meta-chip {
-        font-size: 11px;
-      }
-
-      button {
-        font-size: 12px;
-        padding: 7px 11px;
+      #message {
+        text-align: left;
       }
     }
   </style>
@@ -595,7 +594,7 @@
       <div class="title-block">
         <h1>Sudoku</h1>
         <p class="subtitle">
-          Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda, 1’den 9’a kadar olan rakamların
+          Oyunun amacı, her biri dokuz hücreden oluşan 9 kareye bölünmüş bir alanda 1’den 9’a kadar olan rakamların
           tekrar etmeyecek şekilde yerleştirilmesidir.<br><br>
           Rakamları yerleştirirken:<br>
           • Her satır ve sütunda,<br>
